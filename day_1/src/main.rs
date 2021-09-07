@@ -1,4 +1,5 @@
 use std::fs;
+use itertools::Itertools;
 
 fn main() {
     let data = read_input("input.txt");
@@ -22,13 +23,9 @@ fn read_input(filename: &str) -> Vec<u32> {
     contents
 }
 
-fn find_answer(vector: Vec<u32>) -> (u32,u32) {
-    for i in &vector {
-        for j in &vector {
-            if i + j == 2020 {
-                return (*i, *j);
-            }
-        }
+fn find_answer(vector: Vec<u32>) -> (u32, u32) {
+    for (a, b) in vector.iter().tuple_combinations() {
+        if a + b == 2020 { return (*a, *b) }
     }
-    panic!("No matching numbers found")
+    panic!("No combination found");
 }
