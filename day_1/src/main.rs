@@ -6,7 +6,7 @@ fn main() {
 
     let answer = find_answer(data);
 
-    println!("The answer is {:?}", answer);
+    println!("The answer is {}", {answer.0 * answer.1});
 }
 
 fn read_input(filename: &str) -> Vec<u32> {
