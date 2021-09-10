@@ -14,18 +14,16 @@ impl Line {
     }
 
     fn calculate_gradient(x_coordinate: f32, y_coordinate: f32) -> f32 {
-        y_coordinate/x_coordinate
+        y_coordinate / x_coordinate
     }
 }
 
 mod problem {
-    use std::fs;
     use super::Line;
+    use std::fs;
 
     fn read_input(filename: &str) -> Vec<Vec<char>> {
-
-        let contents = fs::read_to_string(filename)
-            .expect("Error reading file");
+        let contents = fs::read_to_string(filename).expect("Error reading file");
 
         let contents: Vec<Vec<char>> = contents
             .split_whitespace()
@@ -72,10 +70,12 @@ mod problem {
                 gradient: Line::calculate_gradient(1.0, 2.0),
                 y_intercept: 0.0,
                 step_by: 2,
-            }
+            },
         ];
 
-        for line in lines { answer *= count(&plot, '#', &line) }
+        for line in lines {
+            answer *= count(&plot, '#', &line)
+        }
         println!("Answer for problem 2: {}", answer);
     }
 
@@ -83,8 +83,11 @@ mod problem {
         let mut counter: usize = 0;
 
         for y_coordinate in (0..plot.len()).step_by(line.step_by) {
-            let x_coordinate = line.x_coordinate(y_coordinate as f32).ceil() as usize % plot[0].len();
-            if plot[y_coordinate][x_coordinate] == character { counter += 1 }
+            let x_coordinate =
+                line.x_coordinate(y_coordinate as f32).ceil() as usize % plot[0].len();
+            if plot[y_coordinate][x_coordinate] == character {
+                counter += 1
+            }
         }
         counter
     }
