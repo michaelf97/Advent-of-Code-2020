@@ -1,55 +1,40 @@
 use std::fs;
-use itertools::izip;
 
-#[derive(Debug)]
-struct PasswordProfile<'a> {
-    min: usize,
-    max: usize,
-    constraint: char,
-    password: &'a str,
-}
+struct Problem {}
 
-impl PasswordProfile<'_> {
-    fn passed(&self) -> bool {
-        let count = self.password.chars().filter(|c| *c == self.constraint).count();
-        count >= self.min && count <= self.max
+impl Problem {
+    fn run(filename: &str) {
+        let data = Problem::read_input(filename);
+
+        println!("Answer for part 1: {}", Problem::part_1(&data, 3, 1));
+    }
+
+    fn read_input(filename: &str) -> Vec<String> {
+        let contents = fs::read_to_string(filename)
+            .expect("Error reading file");
+
+        let contents: Vec<String> = contents
+            .split_whitespace()
+            .map(|s| s.to_string())
+            .collect();
+
+        contents
+    }
+
+    fn part_1(vector: &Vec<String>, x_gradient: usize, y_gradient: usize) -> usize {
+        let mut counter = 0;
+
+        for (y_coordinate, x_axis) in vector.iter().enumerate().step_by(y_gradient) {
+            let mut x_coordinate = y_coordinate * x_gradient;
+            if x_coordinate != 0 { x_coordinate = x_coordinate % x_axis.len() }
+            if x_axis.chars().collect::<Vec<char>>().get(x_coordinate) == Some(&'#') { 
+                counter += 1;
+            }
+        }
+        counter
     }
 }
 
 fn main() {
-    let data = read_input("input.txt");
-
-    let answer = find_answer(data);
-
-    println!("{}", answer);
-}
-
-fn read_input(filename: &str) -> Vec<String> {
-
-    let contents = fs::read_to_string(filename)
-        .expect("Error reading file");
-
-    let contents: Vec<String> = contents
-        .split_whitespace()
-        .map(|s| s.to_string())
-        .collect();
-
-    contents
-}
-
-fn find_answer(vector: Vec<String>) -> usize {
-
-    let mut counter: usize = 0;
-
-    for (a, b, c) in izip!(&vector, &vector[1..], &vector[2..]).step_by(3) {
-        let profile = PasswordProfile {
-            min: a.split("-").collect::<Vec<&str>>()[0].parse().expect("Minimum constraint is not a number"),
-            max: a.split("-").collect::<Vec<&str>>()[1].parse().expect("Maximum constraint is not a number"),
-            constraint: b.chars().next().unwrap(),
-            password: &c,
-            };
-        if profile.passed() == false { counter += 1 }
-        };
-    
-    counter
+    Problem::run("input.txt")
 }
