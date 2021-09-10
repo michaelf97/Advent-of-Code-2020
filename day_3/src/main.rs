@@ -98,6 +98,4 @@ mod problem {
 
 fn main() {
     problem::run();
-    let test: f32 = 9.999999;
-    println!("{}", test.floor() as usize);
 }
