@@ -9,10 +9,6 @@ impl Line {
         (y_coordinate - self.y_intercept) / self.gradient
     }
 
-    fn y_coordinate(&self, x_coordinate: f32) -> f32 {
-        (self.gradient * x_coordinate) + self.y_intercept
-    }
-
     fn calculate_gradient(x_coordinate: f32, y_coordinate: f32) -> f32 {
         y_coordinate / x_coordinate
     }
