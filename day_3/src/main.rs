@@ -28,12 +28,12 @@ mod problem {
         let contents: Vec<Vec<char>> = contents
             .split_whitespace()
             .map(|s| s.chars().collect())
-            .collect::<Vec<Vec<char>>>();
+            .collect();
 
         contents
     }
 
-    fn problem_1(plot: &Vec<Vec<char>>) {
+    fn problem_1(plot: &[Vec<char>]) {
         let line = Line {
             gradient: Line::calculate_gradient(3.0, 1.0),
             y_intercept: 0.0,
@@ -42,7 +42,7 @@ mod problem {
         count(&plot, '#', &line);
     }
 
-    fn problem_2(plot: &Vec<Vec<char>>) {
+    fn problem_2(plot: &[Vec<char>]) {
         let mut answer = 1;
 
         let lines = vec![
@@ -79,7 +79,7 @@ mod problem {
         println!("Answer for problem 2: {}", answer);
     }
 
-    fn count(plot: &Vec<Vec<char>>, character: char, line: &Line) -> usize {
+    fn count(plot: &[Vec<char>], character: char, line: &Line) -> usize {
         let mut counter: usize = 0;
 
         for y_coordinate in (0..plot.len()).step_by(line.step_by) {
