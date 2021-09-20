@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hex;
 
 #[derive(Debug)]
 struct Passport {
@@ -26,13 +26,6 @@ impl Passport {
         }
     }
 
-    fn update(&mut self, data: HashMap<&str, &str>) {
-        self.byr = match data.get("byr") {
-            Some(value) => Some(value.to_string()),
-            None => None,
-        };
-    }
-
     fn set(&mut self, key: &str, value: &str) {
         match key {
             "byr" => self.byr = Some(value.to_string()),
@@ -56,10 +49,65 @@ impl Passport {
             || self.iyr.is_none()
             || self.pid.is_none()
     }
+
+    fn is_valid(&self) -> bool {
+        self.byr_valid() && self.ecl_valid()
+    }
+
+    fn byr_valid(&self) -> bool {
+        match &self.byr {
+            Some(value) => match value.parse::<u32>() {
+                Ok(number) => 2002 >= number && number >= 1920,
+                Err(_) => false,
+            },
+            None => false,
+        }
+    }
+
+    fn ecl_valid(&self) -> bool {
+        match &self.ecl {
+            Some(value) => {
+                ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&value.as_str())
+            }
+            None => false,
+        }
+    }
+
+    fn eyr_valid(&self) -> bool {
+        match &self.eyr {
+            Some(value) => match value.parse::<u32>() {
+                Ok(number) => 2020 >= number && number >= 2010,
+                Err(_) => false,
+            },
+            None => false,
+        }
+    }
+
+    fn hcl_valid(&self) -> bool {
+        match &self.hcl {
+            Some(value) => {
+                value.get(..1) == Some("#")
+                    && value.get(1..).unwrap().len() == 6
+                    && match hex::decode(value.get(1..).unwrap()).is_ok() {
+                        Ok(_) => true,
+                        Err(_) => false,
+                    }
+            }
+            None => false,
+        }
+    }
+
+    fn hgt_valid(&self) -> bool {
+        match &self.hgt {
+            Some(value) => {
+                ["in", "cm"].contains(&value.get().unwrap())
+            }
+            None => false,
+        }
+    }
 }
 
 mod problem {
-    use super::HashMap;
     use super::Passport;
     use std::fs;
 
@@ -82,6 +130,7 @@ mod problem {
                 );
             }
             if line.is_empty() {
+                println!("{:?} is {}", passport.hgt, passport.hgt_valid());
                 if passport.is_invalid() == false {
                     counter += 1
                 };
