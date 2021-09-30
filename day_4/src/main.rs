@@ -49,23 +49,27 @@ impl Passport {
     }
 
     fn valid(&self) -> bool {
-        self.byr.is_some()
-            && self.ecl.is_some()
-            && self.eyr.is_some()
-            && self.hcl.is_some()
-            && self.hgt.is_some()
-            && self.iyr.is_some()
-            && self.pid.is_some()
+        vec![
+            self.byr.is_some(),
+            self.ecl.is_some(),
+            self.eyr.is_some(),
+            self.hcl.is_some(),
+            self.hgt.is_some(),
+            self.iyr.is_some(),
+            self.pid.is_some(),
+        ].iter().all(|x| x == &true)
     }
 
     fn valid_problem_2(&self) -> bool {
-        self.byr_valid()
-            && self.ecl_valid()
-            && self.eyr_valid()
-            && self.hcl_valid()
-            && self.hgt_valid()
-            && self.iyr_valid()
-            && self.pid_valid()
+        vec![
+            self.byr_valid(),
+            self.ecl_valid(),
+            self.eyr_valid(),
+            self.hcl_valid(),
+            self.hgt_valid(),
+            self.iyr_valid(),
+            self.pid_valid(),
+        ].iter().all(|x| x == &true)
     }
 
     fn byr_valid(&self) -> bool {
