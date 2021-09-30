@@ -1,3 +1,5 @@
+use hex;
+
 #[derive(Debug)]
 struct Passport {
     byr: Option<String>,
@@ -55,6 +57,71 @@ impl Passport {
             && self.iyr.is_some()
             && self.pid.is_some()
     }
+
+    fn valid_problem_2(&self) -> bool {
+        self.byr_valid()
+            && self.ecl_valid()
+            && self.eyr_valid()
+            && self.hcl_valid()
+            && self.hgt_valid()
+            && self.iyr_valid()
+            && self.pid_valid()
+    }
+
+    fn byr_valid(&self) -> bool {
+        self.byr
+            .as_ref()
+            .and_then(|v| v.parse::<usize>().ok())
+            .map_or(false, |v| (1920..2003).contains(&v))
+    }
+
+    fn ecl_valid(&self) -> bool {
+        self.ecl.as_ref().map_or(false, |v| {
+            ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&v.as_str())
+        })
+    }
+
+    fn eyr_valid(&self) -> bool {
+        self.eyr
+            .as_ref()
+            .and_then(|v| v.parse::<usize>().ok())
+            .map_or(false, |v| (2020..2031).contains(&v))
+    }
+
+    fn hcl_valid(&self) -> bool {
+        self.hcl.as_ref().map_or(false, |v| {
+            let mut v = v.clone();
+            v.remove(0) == '#' && hex::decode(v).is_ok()
+        })
+    }
+
+    fn hgt_valid(&self) -> bool {
+        self.hgt.as_ref().map_or(false, |v| {
+            let (prefix, suffix) = v.split_at(v.len() - 2);
+            match suffix {
+                "in" => prefix
+                    .parse::<usize>()
+                    .map_or(false, |p| (59..77).contains(&p)),
+                "cm" => prefix
+                    .parse::<usize>()
+                    .map_or(false, |p| (150..194).contains(&p)),
+                _ => false,
+            }
+        })
+    }
+
+    fn pid_valid(&self) -> bool {
+        self.pid
+            .as_ref()
+            .map_or(false, |v| v.parse::<usize>().is_ok() && v.len() == 9)
+    }
+
+    fn iyr_valid(&self) -> bool {
+        self.iyr
+            .as_ref()
+            .and_then(|v| v.parse::<usize>().ok())
+            .map_or(false, |v| (2010..2021).contains(&v))
+    }
 }
 
 mod problem {
@@ -63,7 +130,7 @@ mod problem {
     use std::io::{BufRead, BufReader, Error, Lines};
     use std::path::Path;
 
-    fn problem_1(passports: Vec<Passport>) {
+    fn problem_1(passports: &Vec<Passport>) {
         let mut counter: usize = passports.len() + 1;
         for passport in passports {
             if !passport.valid() {
@@ -71,10 +138,19 @@ mod problem {
             };
         }
 
-        println!("{}", counter);
+        println!("Answer to problem 1: {}", counter);
     }
 
-    fn problem_2() {}
+    fn problem_2(passports: &Vec<Passport>) {
+        let mut counter: usize = 0;
+        for passport in passports {
+            if passport.valid_problem_2() {
+                counter += 1
+            }
+        }
+
+        println!("Answer to problem 2: {}", counter);
+    }
 
     fn read_input(filename: impl AsRef<Path>) -> Result<File, Error> {
         let file = File::open(filename)?;
@@ -104,7 +180,8 @@ mod problem {
                 passport.set(key, value);
             }
         }
-        problem_1(passports);
+        problem_1(&passports);
+        problem_2(&passports);
     }
 
     pub fn run() {
