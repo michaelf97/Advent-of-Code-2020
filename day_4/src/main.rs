@@ -1,6 +1,6 @@
 use hex;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Passport {
     byr: Option<String>,
     cid: Option<String>,
@@ -10,21 +10,6 @@ struct Passport {
     hgt: Option<String>,
     iyr: Option<String>,
     pid: Option<String>,
-}
-
-impl Default for Passport {
-    fn default() -> Passport {
-        Passport {
-            byr: None,
-            cid: None,
-            ecl: None,
-            eyr: None,
-            hcl: None,
-            hgt: None,
-            iyr: None,
-            pid: None,
-        }
-    }
 }
 
 impl Passport {
