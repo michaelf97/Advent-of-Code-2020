@@ -1,14 +1,55 @@
 use std::convert::TryFrom;
 
 #[derive(Debug)]
+enum Command {
+    Forward,
+    Back,
+    Left,
+    Right,
+}
+
+impl TryFrom<char> for Command {
+    type Error = &'static str;
+
+    fn try_from(character: char) -> Result<Self, Self::Error> {
+        match character {
+            'F' => Ok(Self::Forward),
+            'B' => Ok(Self::Back),
+            'L' => Ok(Self::Left),
+            'R' => Ok(Self::Right),
+            _ => Err("Invalid command"),
+        }
+    }
+}
+
+#[derive(Debug)]
 struct TwoDSpace {
+    x_coordinate: usize,
+    y_coordinate: usize,
+}
+
+impl TwoDSpace {
+    fn from(coordinates: (usize, usize)) -> TwoDSpace {
+        TwoDSpace {
+            x_coordinate: coordinates.0,
+            y_coordinate: coordinates.1,
+        }
+    }
+
+    fn id(&self) -> usize {
+        (self.x_coordinate * 8) + self.y_coordinate
+    }
+}
+
+#[derive(Debug)]
+struct TwoDVector {
     x_dimension: Vec<usize>,
     y_dimension: Vec<usize>,
 }
 
-impl TwoDSpace {
-    fn new() -> TwoDSpace {
-        TwoDSpace {
+impl TwoDVector {
+    fn new() -> TwoDVector {
+        TwoDVector {
             x_dimension: (0..128).collect(),
             y_dimension: (0..8).collect(),
         }
@@ -66,41 +107,21 @@ impl TwoDSpace {
     }
 }
 
-#[derive(Debug)]
-enum Command {
-    Forward,
-    Back,
-    Left,
-    Right,
-}
-
-impl TryFrom<char> for Command {
-    type Error = &'static str;
-
-    fn try_from(character: char) -> Result<Self, Self::Error> {
-        match character {
-            'F' => Ok(Self::Forward),
-            'B' => Ok(Self::Back),
-            'L' => Ok(Self::Left),
-            'R' => Ok(Self::Right),
-            _ => Err("Invalid command"),
-        }
-    }
-}
-
 mod problem {
     use super::Command;
     use super::TwoDSpace;
+    use super::TwoDVector;
     use std::convert::TryFrom;
     use std::fs::File;
     use std::io::{BufRead, BufReader, Error, Lines};
     use std::path::Path;
+    use itertools::Itertools;
 
     fn problem_1(data: &Vec<String>) {
         let mut answer: usize = 0;
 
         for tree in data {
-            let mut space = TwoDSpace::new();
+            let mut space = TwoDVector::new();
 
             tree.chars().for_each(|t| {
                 space.operation(Command::try_from(t).unwrap());
@@ -114,7 +135,35 @@ mod problem {
         println!("Answer for problem 1: {}", answer);
     }
 
-    fn problem_2() {}
+    fn problem_2(data: &Vec<String>) {
+        let x_range = (1..127);
+        let y_range = (0..8);
+
+        let mut seat_ids: Vec<usize> = x_range.cartesian_product(y_range).map(|(x, y)| {
+            TwoDSpace::from((x, y)).id()
+        }).collect();
+
+        for tree in data {
+            let mut space = TwoDVector::new();
+
+            tree.chars().for_each(|t| {
+                space.operation(Command::try_from(t).unwrap());
+            });
+
+            let mut i = 0;
+
+            while i < seat_ids.len() {
+                if space.id() == seat_ids[i] {
+                    seat_ids.remove(i);
+                }
+                else {
+                    i += 1;
+                }
+            }
+        };
+
+        println!("{:?}", seat_ids)
+    }
 
     fn read_input(filename: impl AsRef<Path>) -> Result<File, Error> {
         let file = File::open(filename)?;
@@ -131,6 +180,7 @@ mod problem {
         }
 
         problem_1(&data);
+        problem_2(&data);
     }
 
     pub fn run() {
