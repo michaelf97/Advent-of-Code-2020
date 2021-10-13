@@ -3,25 +3,36 @@ use std::iter::FromIterator;
 
 #[derive(Debug)]
 struct Form {
-    questions: HashMap<char, bool>,
+    questions: HashMap<char, usize>,
+    members: usize,
 }
 
 impl Form {
     fn new() -> Form {
-        let questions = HashMap::from_iter(('a'..='z').into_iter().map(|c| (c, false)));
         Form {
-            questions: questions,
+            questions: HashMap::from_iter(('a'..='z').into_iter().map(|c| (c, 0))),
+            members: 0,
         }
     }
 
     fn count(&self) -> usize {
-        self.questions.values().filter(|q| *q == &true).count()
+        self.questions.values().filter(|q| *q > &0).count()
     }
 
     fn check(&mut self, input: &String) {
-        for i in input.chars() {
-            self.questions.insert(i, true);
-        }
+        self.members += 1;
+        ('a'..='z').for_each(|c| {
+            if input.contains(c) {
+                self.questions.insert(c, 1 + self.questions[&c]);
+            }
+        });
+    }
+
+    fn all_true(&mut self) -> usize {
+        self.questions
+            .values()
+            .filter(|v| *v == &self.members)
+            .count()
     }
 }
 
@@ -33,21 +44,34 @@ mod problem {
 
     fn problem_1(input: &Vec<String>) {
         let mut form = Form::new();
-        let mut counter = 0;
-        for i in input {
+        let mut answer = 0;
+        input.iter().for_each(|i| {
+            form.check(i);
             if i.is_empty() {
-                counter += form.count();
+                answer += form.count();
                 form = Form::new();
             }
-            else {
-                form.check(i);
-            }
-        }
+        });
+        answer += form.count();
 
-        println!("Answer for part 1: {}", counter);
+        println!("Answer for part 1: {}", answer);
     }
 
-    fn problem_2(input: &Vec<String>) {}
+    fn problem_2(input: &Vec<String>) {
+        let mut form = Form::new();
+        let mut answer = 0;
+        input.iter().for_each(|i| {
+            if i.is_empty() {
+                answer += form.all_true();
+                form = Form::new();
+            } else {
+                form.check(i);
+            }
+        });
+        answer += form.all_true();
+
+        println!("Answer for part 2: {}", answer);
+    }
 
     fn read_input(filename: impl AsRef<Path>) -> Result<File, Error> {
         let file = File::open(filename)?;
@@ -75,7 +99,5 @@ mod problem {
 }
 
 fn main() {
-    //println!("{:?}", ('a'..='z').collect::<Vec<char>>());
-    println!("{:?}", Form::new());
     problem::run();
 }
